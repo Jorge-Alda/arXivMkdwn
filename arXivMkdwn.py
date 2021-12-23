@@ -23,14 +23,21 @@ def generateMkdwn(arxivid: str) -> str:
     summ = dr['feed']['entry']['summary'].replace('\n', ' ')
     summ = re.sub(' +', ' ', summ)
     authlist = dr['feed']['entry']['author']
-    auths = ''
-    for a in authlist:
-        au = list(dict(a).values())[0]
-        au = re.sub(' +', ' ', au)
-        auths += f'{au}, '
+    if len(authlist) == 1:
+        auths = authlist['name'] + ', '
+    else:
+        auths = ''
+        for a in authlist:
+            au = a['name']
+            au = re.sub(' +', ' ', au)
+            auths += au + ', '
     mkdwn = f"## {title}\n {auths}[![](https://img.shields.io/badge/arXiv-{arxivid}-00ff00)](https://arxiv.org/abs/{arxivid})\n\n{summ}"
     return mkdwn
 
 
 if __name__ == "__main__":
-    print(generateMkdwn(sys.argv[1]))
+    if sys.argv[0][-3:] == '.py':
+        arxivid = sys.argv[1]
+    else:
+        arxivid = sys.argv[1]
+    print(generateMkdwn(arxivid))
