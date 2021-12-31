@@ -5,6 +5,7 @@ from urllib.error import HTTPError
 import xmltodict
 import sys
 import re
+import time
 
 
 def generateMkdwn(arxivid: str) -> str:
@@ -31,13 +32,38 @@ def generateMkdwn(arxivid: str) -> str:
             au = a['name']
             au = re.sub(' +', ' ', au)
             auths += au + ', '
-    mkdwn = f"## {title}\n {auths}[![](https://img.shields.io/badge/arXiv-{arxivid}-00ff00)](https://arxiv.org/abs/{arxivid})\n\n{summ}"
+    mkdwn = f'---\nlayout: post\ntitle: "{title}"\ndate: {time.strftime("%Y-%m-%d %H:%M:%S")}\ncategories: blog\ntags: [,arXiv]\n---\n\n**{auths}**\n[![arXiv:{arxivid}](https://img.shields.io/badge/arXiv-{arxivid}-00ff00)](https://arxiv.org/abs/{arxivid})\n\n*Abstract:*\n{summ}'
     return mkdwn
 
+
+def escape(text: str) -> str:
+    newtext = ''
+    opendollar = False
+    for c in text:
+        if c == '$':
+            if opendollar:
+                newtext += r'\\)'
+                opendollar = False
+            else:
+                newtext += r'\\('
+                opendollar = True
+        elif (c == '\\') and opendollar:
+            newtext += r'\\'
+        elif (c == '_') and opendollar:
+            newtext += r'\_'
+        elif (c == '{') and opendollar:
+            newtext += r'\{'
+        elif (c == '}') and opendollar:
+            newtext += r'\}'
+        elif (c == '*') and opendollar:
+            newtext += r'\*'
+        else:
+            newtext += c
+    return newtext
 
 if __name__ == "__main__":
     if sys.argv[0][-3:] == '.py':
         arxivid = sys.argv[1]
     else:
         arxivid = sys.argv[1]
-    print(generateMkdwn(arxivid))
+    print(escape(generateMkdwn(arxivid)))
