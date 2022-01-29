@@ -25,13 +25,14 @@ def generateMkdwn(arxivid: str) -> str:
     summ = re.sub(' +', ' ', summ)
     authlist = dr['feed']['entry']['author']
     if len(authlist) == 1:
-        auths = authlist['name'] + ', '
+        auths = authlist['name']
     else:
         auths = ''
         for a in authlist:
             au = a['name']
             au = re.sub(' +', ' ', au)
             auths += au + ', '
+        auths = auths[:-2]
     mkdwn = f'---\nlayout: post\ntitle: "{title}"\ndate: {time.strftime("%Y-%m-%d %H:%M:%S")}\ncategories: arXiv\ntags: []\n---\n\n**{auths}**\n[![arXiv:{arxivid}](https://img.shields.io/badge/arXiv-{arxivid}-00ff00)](https://arxiv.org/abs/{arxivid})\n\n*Abstract:*\n{summ}'
     return mkdwn
 
